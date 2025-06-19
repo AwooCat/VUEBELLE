@@ -1,0 +1,32 @@
+{
+  "layer": "top",
+  "position": "top",
+  "modules-left": ["sway/workspaces", "sway/mode"],
+  "modules-center": ["clock"],
+  "modules-right": ["tray", "network", "cpu", "memory", "temperature", "battery"],
+
+  "tray": {
+    "icon-size": 16,
+    "spacing": 10
+  },
+
+  "network": {
+    "interface": "wlo1",
+    "format-wifi": " {essid} ({signalStrength}%)",
+    "format-ethernet": " {ifname}",
+    "format-disconnected": "⚠ Disconnected",
+    "tooltip": true
+  },
+
+  "cpu": {
+    "format": "{usage}%"
+  },
+
+  "memory": {
+    "format": "{used}MB / {total}MB"
+  },
+
+  "temperature": {
+    "format": "{temperature}°C"
+  }
+}
