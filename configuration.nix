@@ -18,9 +18,11 @@
 
   i18n.defaultLocale = "en_GB.UTF-8";
 
-  console.keyMap = "sg";  # Swiss German for TTY
+  console.keyMap = "sg";
 
   services.xserver.enable = false;
+
+  services.xserver.videoDrivers = [ "nvidia" ];
 
   services.displayManager.sddm = {
     enable = true;
@@ -44,12 +46,8 @@
   programs.zsh.enable = true;
   programs.steam.enable = true;
 
-  environment.systemPackages = with pkgs; [
-    nvidia-utils
-  ];
-
   hardware.nvidia = {
-    package = config.boot.kernelPackages.nvidiaPackages.stable;
+    package = pkgs.linuxPackages_6_1.nvidiaPackages.stable;
     modesetting.enable = true;
     nvidiaSettings = true;
     nvidiaPersistenced = true;
