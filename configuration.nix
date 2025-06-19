@@ -44,6 +44,10 @@
   programs.zsh.enable = true;
   programs.steam.enable = true;
 
+  environment.systemPackages = with pkgs; [
+    nvidia-utils
+  ];
+
   hardware.nvidia = {
     package = config.boot.kernelPackages.nvidiaPackages.stable;
     modesetting.enable = true;
