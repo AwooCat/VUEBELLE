@@ -1,0 +1,5 @@
+[settings]
+style = ~/.config/wofi/style.css
+show-icons = true
+font = JetBrains Mono 12
+location = center
