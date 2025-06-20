@@ -1,0 +1,58 @@
+{
+  "layer": "top",
+  "position": "top",
+  "height": 30,
+  "modules-left": ["sway/workspaces", "sway/mode"],
+  "modules-center": ["clock"],
+  "modules-right": ["tray", "network", "cpu", "memory", "custom/cputemp", "battery", "pulseaudio"],
+
+  "tray": {
+    "icon-size": 16,
+    "spacing": 10
+  },
+
+  "network": {
+    "interface": "wlo1",
+    "format-wifi": " {essid} ({signalStrength}%)",
+    "format-ethernet": " {ifname}",
+    "format-disconnected": "⚠ Disconnected",
+    "tooltip": true
+  },
+
+  "cpu": {
+    "format": "{usage}%",
+    "interval": 5
+  },
+
+  "memory": {
+    "format": "{used}MiB / {total}MiB",
+    "interval": 10
+  },
+
+  "custom/cputemp": {
+    "exec": "bash -c 'echo $(( $(cat /sys/class/thermal/thermal_zone0/temp) / 1000 ))'",
+    "interval": 10,
+    "format": "🌡 {}°C",
+    "tooltip": false
+  },
+
+  "battery": {
+    "format": "{capacity}%",
+    "interval": 30
+  },
+
+  "clock": {
+    "format": "{:%Y-%m-%d %H:%M:%S}"
+  },
+
+  "pulseaudio": {
+    "format": "{volume}% {icon}",
+    "interval": 10
+  },
+
+  "sway/workspaces": {
+    "all-outputs": true
+  },
+
+  "sway/mode": {}
+}

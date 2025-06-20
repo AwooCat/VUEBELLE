@@ -23,6 +23,7 @@
         pkgs = pkgs;
 
         modules = [
+          ./hardware-configuration.nix
           ./configuration.nix
 
           ({ pkgs, ... }: {
