@@ -25,7 +25,7 @@
         modules = [
           ./configuration.nix
 
-          ({ pkgs, ... }: {
+          ({ pkgs, lib, ... }: {
             programs.hyprland = {
               enable = true;
               withUWSM = true;
@@ -44,7 +44,11 @@
               heroic
               fastfetch
               kdePackages.okular
+              lm_sensors
             ];
+
+            # Load CPU temperature kernel modules (adjust if necessary)
+            boot.kernelModules = lib.mkForce [ "k10temp" "coretemp" ];
           })
         ];
       };
