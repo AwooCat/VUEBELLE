@@ -1,5 +1,5 @@
 {
-  description = "Hyprland Gaming NixOS with Home Manager";
+  description = "Hyprland Gaming NixOS with Home Manager and NVIDIA";
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-25.05";
@@ -17,22 +17,39 @@
         inherit system;
         config.allowUnfree = true;
       };
-    in {
+    in
+    {
       nixosConfigurations.${hostname} = nixpkgs.lib.nixosSystem {
-        inherit system;
-        pkgs = pkgs;
+        inherit system pkgs;
 
         modules = [
-          ./hardware-configuration.nix
           ./configuration.nix
 
-          ({ pkgs, ... }: {
-            programs.hyprland = {
-              enable = true;
-              withUWSM = true;
-              xwayland.enable = true;
+          ({ config, pkgs, ... }: {
+            # Nvidia setup
+            boot.kernelPackages = pkgs.linuxPackages_6_1;
+            boot.blacklistedKernelModules = [ "nouveau" ];
+
+            hardware.nvidia = {
+              package = pkgs.linuxPackages_6_1.nvidiaPackages.stable;
+              modesetting.enable = true;
+              nvidiaSettings = true;
+              nvidiaPersistenced = true;
+              open = false;
+              prime = {
+                offload.enable = true;
+                amdgpuBusId = "PCI:5:0:0";
+                nvidiaBusId = "PCI:1:0:0";
+              };
             };
 
+            environment.variables = {
+              __GLX_VENDOR_LIBRARY_NAME = "nvidia";
+              GBM_BACKEND = "nvidia-drm";
+              LIBVA_DRIVER_NAME = "nvidia";
+            };
+
+            # Your specified system packages only
             environment.systemPackages = with pkgs; [
               hyprland
               hyprpaper
