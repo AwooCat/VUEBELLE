@@ -1,0 +1,51 @@
+#waybar {
+  background-color: black;
+  color: white;
+  font-family: "JetBrains Mono", monospace;
+  font-weight: 600;
+  font-size: 12px;
+}
+
+.module .icon {
+  background-color: #00ff9f;
+  padding: 2px 6px;
+  border-radius: 6px;
+  margin-right: 6px;
+}
+
+/* Text colors */
+#custom-cputemp {
+  color: cyan;
+}
+
+#battery {
+  color: #ff06b5;
+}
+
+#cpu, #memory {
+  color: #bd00ff;
+}
+
+#pulseaudio {
+  color: cyan;
+}
+
+#network {
+  color: cyan;
+}
+
+#clock {
+  color: cyan;
+}
+
+#tray {
+  background: transparent;
+}
+
+.module {
+  padding: 0 8px;
+}
+
+.module .icon:hover {
+  opacity: 0.85;
+}
