@@ -17,21 +17,23 @@
         inherit system;
         config.allowUnfree = true;
       };
-    in
-    {
+    in {
       nixosConfigurations.${hostname} = nixpkgs.lib.nixosSystem {
         inherit system pkgs;
 
         modules = [
           ./configuration.nix
 
-          ({ config, pkgs, ... }: {
-            # Nvidia setup
+          ({ config, pkgs, ... }: let
+            nvidiaPackages = pkgs.linuxPackages_6_1.nvidiaPackages;
+          in {
             boot.kernelPackages = pkgs.linuxPackages_6_1;
             boot.blacklistedKernelModules = [ "nouveau" ];
 
+            services.xserver.videoDrivers = [ "nvidia" ];
+
             hardware.nvidia = {
-              package = pkgs.linuxPackages_6_1.nvidiaPackages.stable;
+              package = nvidiaPackages.stable;
               modesetting.enable = true;
               nvidiaSettings = true;
               nvidiaPersistenced = true;
@@ -49,7 +51,6 @@
               LIBVA_DRIVER_NAME = "nvidia";
             };
 
-            # Your specified system packages only
             environment.systemPackages = with pkgs; [
               hyprland
               hyprpaper
@@ -62,6 +63,7 @@
               heroic
               fastfetch
               kdePackages.okular
+              nvidiaPackages.stable
             ];
           })
         ];

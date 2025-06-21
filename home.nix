@@ -7,7 +7,7 @@ let
       "position": "top",
       "modules-left": ["sway/workspaces", "sway/mode"],
       "modules-center": ["clock"],
-      "modules-right": ["tray", "network", "cpu", "memory", "temperature", "battery"],
+      "modules-right": ["tray", "network", "temperature", "pulseaudio", "cpu", "memory", "battery"],
 
       "tray": {
         "icon-size": 16,
@@ -16,9 +16,20 @@ let
 
       "network": {
         "interface": "wlo1",
-        "format-wifi": " {essid} ({signalStrength}%)",
+        "format-wifi": " {signalStrength}%",
         "format-ethernet": " {ifname}",
         "format-disconnected": "⚠ Disconnected",
+        "tooltip": true
+      },
+
+      "temperature": {
+        "format": "{}",
+        "exec": "/home/ryu/check_temperature.sh",
+        "tooltip": true
+      },
+
+      "pulseaudio": {
+        "format": " {volume}%",
         "tooltip": true
       },
 
@@ -28,10 +39,6 @@ let
 
       "memory": {
         "format": "{used}MB / {total}MB"
-      },
-
-      "temperature": {
-        "format": "{temperature}°C"
       }
     }
   '';
@@ -57,6 +64,8 @@ in
     catppuccin-gtk
     hyprpaper
     networkmanagerapplet
+    wofi
+    pulseaudio
   ];
 
   home.sessionVariables = {
@@ -73,35 +82,24 @@ in
 
   wayland.windowManager.hyprland = {
     enable = true;
-
     settings = {
       "$mod" = "SUPER";
-
       bind = [
         "$mod, RETURN, exec, alacritty"
         "$mod, Q, killactive,"
         "$mod, F, fullscreen,"
         "$mod SHIFT, E, exit,"
+        "$mod, D, exec, wofi --show drun"
       ];
-
       exec-once = [
-        "hyprpaper"
+        "hyprpaper -w all /home/ryu/Pictures/1340419.png"
         "waybar"
         "nm-applet"
+        "/nix/store/rys6134aqazihxi4g5ayc0ky829v7mf0-dbus-1.14.10/bin/dbus-update-activation-environment --systemd WAYLAND_DISPLAY XDG_CURRENT_DESKTOP"
       ];
-
       monitor = [ ",preferred,auto,1" ];
-
-      env = [
-        "XCURSOR_SIZE,24"
-      ];
-
-      input = {
-        kb_layout = "ch";
-        kb_variant = "de";
-        follow_mouse = 1;
-      };
-
+      env = [ "XCURSOR_SIZE,24" ];
+      input = { kb_layout = "ch"; kb_variant = "de"; follow_mouse = 1; };
       general = {
         gaps_in = 5;
         gaps_out = 20;
@@ -112,9 +110,8 @@ in
     };
   };
 
-  programs.waybar = {
-    enable = true;
-  };
+  # Prevent double launching Waybar
+  programs.waybar.enable = false;
 
   home.file.".config/waybar/config" = {
     text = waybarConfig;
