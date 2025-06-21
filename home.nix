@@ -5,9 +5,9 @@ let
     {
       "layer": "top",
       "position": "top",
-      "modules-left": ["sway/workspaces", "sway/mode"],
+      "modules-left": ["sway/workspaces", "sway/mode", "custom/cputemp", "network"],
       "modules-center": ["clock"],
-      "modules-right": ["tray", "network", "cpu", "memory", "temperature", "battery"],
+      "modules-right": ["tray", "cpu", "memory", "temperature", "battery"],
 
       "tray": {
         "icon-size": 16,
@@ -32,12 +32,15 @@ let
 
       "temperature": {
         "format": "{temperature}°C"
+      },
+
+      "custom/cputemp": {
+        "exec": "/home/ryu/.config/waybar/cpu_temp.sh",
+        "interval": 10
       }
     }
   '';
-in
-
-{
+in {
   home.username = "ryu";
   home.homeDirectory = "/home/ryu";
   home.stateVersion = "25.05";
@@ -50,7 +53,6 @@ in
     swaylock
     git
     vim
-    zsh
     jetbrains-mono
     nerd-fonts.jetbrains-mono
     papirus-icon-theme
@@ -64,7 +66,7 @@ in
   };
 
   programs.zsh = {
-    enable = true;
+    enable = false;
     shellAliases = {
       ll = "ls -al";
       gs = "git status";
