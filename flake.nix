@@ -40,8 +40,8 @@
               open = false;
               prime = {
                 offload.enable = true;
-                amdgpuBusId = "PCI:5:0:0";
-                nvidiaBusId = "PCI:1:0:0";
+                amdgpuBusId = "PCI:5:0:0";  # Adjust this according to your hardware
+                nvidiaBusId = "PCI:1:0:0";  # Adjust this according to your hardware
               };
             };
 
@@ -64,6 +64,7 @@
               fastfetch
               kdePackages.okular
               nvidiaPackages.stable
+              flameshot
             ];
           })
         ];
@@ -71,7 +72,10 @@
 
       homeConfigurations.${username} = home-manager.lib.homeManagerConfiguration {
         inherit pkgs;
-        modules = [ ./home.nix ];
+
+        modules = [
+          ./home.nix
+        ];
       };
     };
 }

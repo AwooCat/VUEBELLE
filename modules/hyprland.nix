@@ -1,5 +1,5 @@
-exec-once = /nix/store/rys6134aqazihxi4g5ayc0ky829v7mf0-dbus-1.14.10/bin/dbus-update-activation-environment --systemd DISPLAY HYPRLAND_INSTANCE_SIGNATURE WAYLAND_DISPLAY XDG_CURRENT_DESKTOP && systemctl --user stop hyprland-session.target && systemctl --user start hyprland-session.target
 $mod=SUPER
+
 general {
   border_size=2
   col.active_border=rgba(ff00ffaa)
@@ -13,15 +13,25 @@ input {
   kb_layout=ch
   kb_variant=de
 }
+
 bind=$mod, RETURN, exec, alacritty
-bind=$mod, Q, killactive,
-bind=$mod, F, fullscreen,
-bind=$mod SHIFT, E, exit,
+bind=$mod, Q, killactive
+bind=$mod, F, fullscreen
+bind=$mod, SHIFT+E, exit
 bind=$mod, D, exec, wofi --show drun
 bind=$mod, S, exec, flameshot gui
+
+# New shortcuts
+bind=$mod, T, exec, steam
+bind=$mod, B, exec, librewolf
+bind=$mod, L, exec, lutris
+bind=$mod, H, exec, heroic
+
 env=XCURSOR_SIZE,24
+
 exec-once=hyprpaper -w all /home/ryu/Pictures/1340419.png
 exec-once=waybar
 exec-once=nm-applet
 exec-once=/nix/store/rys6134aqazihxi4g5ayc0ky829v7mf0-dbus-1.14.10/bin/dbus-update-activation-environment --systemd WAYLAND_DISPLAY XDG_CURRENT_DESKTOP
+
 monitor=,preferred,auto,1
