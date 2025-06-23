@@ -98,7 +98,7 @@ in
       ];
 
       exec-once = [
-        "hyprpaper"
+        "/home/ryu/.config/hypr/hyprpaper-startup.sh"
         "nm-applet"
         "waybar"
         "/nix/store/rys6134aqazihxi4g5ayc0ky829v7mf0-dbus-1.14.10/bin/dbus-update-activation-environment --systemd WAYLAND_DISPLAY XDG_CURRENT_DESKTOP"
@@ -136,11 +136,11 @@ in
 
   # Random wallpaper startup script (must be a string literal)
   home.file.".config/hypr/hyprpaper-startup.sh".text = ''
-    #!/bin/bash
-    WALLS=(/home/ryu/Pictures/*.jpg /home/ryu/Pictures/*.png /home/ryu/Pictures/*.webp)
-    RANDOM_WALL=$${WALLS[$${RANDOM} % $${#WALLS[@]}]}
-    hyprpaper -w all "$${RANDOM_WALL}"
-  '';
+  #!/bin/bash
+  WALLS=(/home/ryu/Pictures/walls/*.jpg /home/ryu/Pictures/walls/*.png /home/ryu/Pictures/walls/*.webp)
+  RANDOM_WALL=$${WALLS[$${RANDOM} % $${#WALLS[@]}]}
+  hyprpaper -w all "$${RANDOM_WALL}"
+'';
 
   # Make the startup script executable
   home.activation.makeHyprpaperStartupExecutable = ''
