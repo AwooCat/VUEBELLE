@@ -1,0 +1,52 @@
+{
+  "layer": "top",
+  "position": "top",
+  "modules-left": ["hyprland/workspaces"],
+  "modules-center": ["clock"],
+  "modules-right": ["pulseaudio", "custom/wifi", "cpu", "memory", "battery", "tray", "temperature"],
+
+  "clock": {
+    "format": "{:%Y-%m-%d %H:%M:%S}"
+  },
+
+  "pulseaudio": {
+    "format": " {volume}%",
+    "format-muted": " muted"
+  },
+
+  "cpu": {
+    "format": " {usage}%"
+  },
+
+  "memory": {
+    "format": " {used}M"
+  },
+
+  "battery": {
+    "format": "{capacity}% {icon}",
+    "format-icons": ["", "", "", "", ""]
+  },
+
+  "tray": {
+    "icon-size": 16,
+    "spacing": 10
+  },
+
+  "temperature": {
+    "format": "{}",
+    "exec": "/home/ryu/check_temperature.sh",
+    "tooltip": true
+  },
+
+ "custom/wifi": {
+  "exec": "/home/ryu/network-status.sh",
+  "interval": 10,
+  "tooltip": false,
+  "on-click": "/home/ryu/network-connect.sh"
+}
+
+
+    
+
+}
+

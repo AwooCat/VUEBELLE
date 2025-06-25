@@ -1,4 +1,4 @@
-{ config, pkgs, ... }:
+{ config, pkgs, lib, ... }:
 
 let
   waybarConfig = ''
@@ -8,42 +8,26 @@ let
       "modules-left": ["sway/workspaces", "sway/mode"],
       "modules-center": ["clock"],
       "modules-right": ["tray", "network", "temperature", "pulseaudio", "cpu", "memory", "battery"],
-
-      "tray": {
-        "icon-size": 16,
-        "spacing": 10
-      },
-
+      "tray": { "icon-size": 16, "spacing": 10 },
       "network": {
         "interface": "wlo1",
         "format-wifi": " {signalStrength}%",
         "format-ethernet": " {ifname}",
         "format-disconnected": "⚠ Disconnected",
-        "tooltip": true
+        "tooltip": true,
+        "on-click": "~/.config/waybar/scripts/network-connect.sh"
       },
-
       "temperature": {
         "format": "{}",
         "exec": "/home/ryu/check_temperature.sh",
         "tooltip": true
       },
-
-      "pulseaudio": {
-        "format": " {volume}%",
-        "tooltip": true
-      },
-
-      "cpu": {
-        "format": "{usage}%"
-      },
-
-      "memory": {
-        "format": "{used}MB / {total}MB"
-      }
+      "pulseaudio": { "format": " {volume}%", "tooltip": true },
+      "cpu": { "format": "{usage}%" },
+      "memory": { "format": "{used}MB / {total}MB" }
     }
   '';
-in
-{
+in {
   home.username = "ryu";
   home.homeDirectory = "/home/ryu";
   home.stateVersion = "25.05";
@@ -51,23 +35,10 @@ in
   programs.home-manager.enable = true;
 
   home.packages = with pkgs; [
-    alacritty
-    waybar
-    swaylock
-    git
-    vim
-    zsh
-    jetbrains-mono
-    nerd-fonts.jetbrains-mono
-    papirus-icon-theme
-    catppuccin-gtk
-    hyprpaper
-    networkmanagerapplet
-    wofi
-    pulseaudio
-    grim
-    slurp
-    gimp
+    alacritty waybar swaylock git vim zsh
+    jetbrains-mono nerd-fonts.jetbrains-mono
+    papirus-icon-theme catppuccin-gtk hyprpaper
+    networkmanagerapplet wofi pulseaudio grim slurp gimp
   ];
 
   home.sessionVariables = {
@@ -96,14 +67,10 @@ in
         "$mod, L, exec, librewolf"
         "$mod, M, exec, steam"
       ];
-
       exec-once = [
-        "/home/ryu/.config/hypr/hyprpaper-startup.sh"
-        "nm-applet"
+        "dbus-update-activation-environment --systemd WAYLAND_DISPLAY XDG_CURRENT_DESKTOP XDG_SESSION_TYPE"
         "waybar"
-        "/nix/store/rys6134aqazihxi4g5ayc0ky829v7mf0-dbus-1.14.10/bin/dbus-update-activation-environment --systemd WAYLAND_DISPLAY XDG_CURRENT_DESKTOP"
       ];
-
       monitor = [ ",preferred,auto,1" ];
       env = [ "XCURSOR_SIZE,24" ];
       input = {
@@ -121,30 +88,87 @@ in
     };
   };
 
-  # Prevent double launching Waybar
-  programs.waybar.enable = false;
-
-  # Waybar config
+  programs.waybar.enable = true;
   home.file.".config/waybar/config".text = waybarConfig;
 
-  # Hyprpaper config (static fallback)
-  home.file.".config/hypr/hyprpaper.conf".text = ''
-    preload = /home/ryu/Pictures/1340419.png
-    wallpaper = ,/home/ryu/Pictures/1340419.png
-    splash = false
-  '';
+  # Wallpaper rotation script
+  home.file.".config/hypr/random-wallpaper.sh" = {
+    text = ''
+      #!/usr/bin/env bash
 
-  # Random wallpaper startup script (must be a string literal)
-  home.file.".config/hypr/hyprpaper-startup.sh".text = ''
-  #!/bin/bash
-  WALLS=(/home/ryu/Pictures/walls/*.jpg /home/ryu/Pictures/walls/*.png /home/ryu/Pictures/walls/*.webp)
-  RANDOM_WALL=$${WALLS[$${RANDOM} % $${#WALLS[@]}]}
-  hyprpaper -w all "$${RANDOM_WALL}"
-'';
+      CURRENT_WALLPAPER_FILE="$HOME/.cache/current_wallpaper.txt"
+      WALLPAPER_DIR="$HOME/Pictures/walls"
 
-  # Make the startup script executable
-  home.activation.makeHyprpaperStartupExecutable = ''
-    chmod +x /home/ryu/.config/hypr/hyprpaper-startup.sh
+      if [ -f "$CURRENT_WALLPAPER_FILE" ]; then
+        CURRENT_WALL=$(cat "$CURRENT_WALLPAPER_FILE")
+      else
+        CURRENT_WALL=""
+      fi
+
+      if [ -n "$CURRENT_WALL" ]; then
+        WALLPAPER=$(find "$WALLPAPER_DIR" -type f ! -name "$(basename "$CURRENT_WALL")" | shuf -n 1)
+      else
+        WALLPAPER=$(find "$WALLPAPER_DIR" -type f | shuf -n 1)
+      fi
+
+      hyprctl hyprpaper reload ,"$WALLPAPER"
+
+      echo "$WALLPAPER" > "$CURRENT_WALLPAPER_FILE"
+    '';
+    executable = true;
+  };
+
+  # Hyprpaper daemon service
+  systemd.user.services.hyprpaper = {
+    Unit = {
+      Description = "Hyprpaper daemon";
+      After = [ "network.target" ];
+    };
+    Service = {
+      ExecStart = "${pkgs.hyprpaper}/bin/hyprpaper";
+      Restart = "always";
+      RestartSec = 5;
+    };
+    Install = {
+      WantedBy = [ "default.target" ];
+    };
+  };
+
+  # Wallpaper randomizer service
+  systemd.user.services.hyprpaper-random = {
+    Unit = {
+      Description = "Set random wallpaper using Hyprpaper";
+    };
+    Service = {
+      ExecStart = "${config.home.homeDirectory}/.config/hypr/random-wallpaper.sh";
+      Type = "oneshot";
+    };
+    Install = {
+      WantedBy = [ "default.target" ];
+    };
+  };
+
+  # Timer to run the wallpaper randomizer every 10 mins
+  systemd.user.timers.hyprpaper-random = {
+    Unit = {
+      Description = "Run wallpaper change every 10 minutes";
+    };
+    Timer = {
+      OnBootSec = "1min";
+      OnUnitActiveSec = "10min";
+      Unit = "hyprpaper-random.service";
+    };
+    Install = {
+      WantedBy = [ "timers.target" ];
+    };
+  };
+
+  # Scripts
+  home.file."scripts/network-status.sh".source = ./scripts/network-status.sh;
+  home.file."scripts/network-connect.sh".source = ./scripts/network-connect.sh;
+
+  home.activation.makeScriptsExecutable = lib.hm.dag.entryAfter ["writeBoundary"] ''
+    chmod +x $HOME/scripts/network-*.sh
   '';
 
   home.enableNixpkgsReleaseCheck = false;

@@ -52,6 +52,8 @@
           })
         ];
       };
+home.file."scripts/network-connect.sh".source = ./scripts/network-connect.sh;
+home.file."scripts/network-status.sh".source = ./scripts/network-status.sh;
 
       homeConfigurations.${username} = home-manager.lib.homeManagerConfiguration {
         inherit pkgs;
