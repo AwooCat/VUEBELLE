@@ -70,6 +70,7 @@ in {
       exec-once = [
         "dbus-update-activation-environment --systemd WAYLAND_DISPLAY XDG_CURRENT_DESKTOP XDG_SESSION_TYPE"
         "waybar"
+        "hyprpaper"
       ];
       monitor = [ ",preferred,auto,1" ];
       env = [ "XCURSOR_SIZE,24" ];
@@ -91,34 +92,23 @@ in {
   programs.waybar.enable = true;
   home.file.".config/waybar/config".text = waybarConfig;
 
-  # Wallpaper rotation script
+  # Updated random wallpaper script
   home.file.".config/hypr/random-wallpaper.sh" = {
     text = ''
       #!/usr/bin/env bash
 
-      CURRENT_WALLPAPER_FILE="$HOME/.cache/current_wallpaper.txt"
       WALLPAPER_DIR="$HOME/Pictures/walls"
+      MONITOR="eDP-1"
 
-      if [ -f "$CURRENT_WALLPAPER_FILE" ]; then
-        CURRENT_WALL=$(cat "$CURRENT_WALLPAPER_FILE")
-      else
-        CURRENT_WALL=""
-      fi
+      WALLPAPER=$(find "$WALLPAPER_DIR" -type f | shuf -n 1)
 
-      if [ -n "$CURRENT_WALL" ]; then
-        WALLPAPER=$(find "$WALLPAPER_DIR" -type f ! -name "$(basename "$CURRENT_WALL")" | shuf -n 1)
-      else
-        WALLPAPER=$(find "$WALLPAPER_DIR" -type f | shuf -n 1)
-      fi
-
-      hyprctl hyprpaper reload ,"$WALLPAPER"
-
-      echo "$WALLPAPER" > "$CURRENT_WALLPAPER_FILE"
+      hyprctl hyprpaper preload "$WALLPAPER"
+      hyprctl hyprpaper wallpaper "$MONITOR,$WALLPAPER"
     '';
-    executable = true;
+    executable = true; 
   };
 
-  # Hyprpaper daemon service
+  # Hyprpaper daemon
   systemd.user.services.hyprpaper = {
     Unit = {
       Description = "Hyprpaper daemon";
@@ -134,7 +124,7 @@ in {
     };
   };
 
-  # Wallpaper randomizer service
+  # Wallpaper changer service
   systemd.user.services.hyprpaper-random = {
     Unit = {
       Description = "Set random wallpaper using Hyprpaper";
@@ -148,7 +138,7 @@ in {
     };
   };
 
-  # Timer to run the wallpaper randomizer every 10 mins
+  # Timer every 10 minutes
   systemd.user.timers.hyprpaper-random = {
     Unit = {
       Description = "Run wallpaper change every 10 minutes";
