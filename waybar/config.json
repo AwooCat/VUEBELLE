@@ -1,0 +1,65 @@
+{
+  "layer": "top",
+  "position": "top",
+  "modules-left": ["custom/cpu", "custom/memory", "sway/workspaces", "sway/mode"],
+  "modules-center": ["clock"],
+  "modules-right": ["tray", "custom/wifi", "custom/temperature", "custom/volume", "battery"],
+
+  "tray": {
+    "icon-size": 16,
+    "spacing": 10
+  },
+
+  "clock": {
+    "format": "{:%H:%M}"
+  },
+
+  "custom/wifi": {
+    "exec": "~/.config/waybar/scripts/geko-wifi.sh",
+    "interval": 10,
+    "format": "{}",
+    "on-click": "~/.config/waybar/scripts/wifi-connect.sh",
+    "return-type": "json",
+    "tooltip": true
+  },
+
+  "custom/volume": {
+    "exec": "~/.config/waybar/scripts/volume.sh",
+    "interval": 3,
+    "return-type": "json",
+    "on-scroll-up": "pamixer -i 5",
+    "on-scroll-down": "pamixer -d 5",
+    "on-click": "pamixer -t",
+    "tooltip": true
+  },
+
+  "custom/temperature": {
+    "exec": "~/.config/waybar/scripts/ryzen-geko.sh",
+    "interval": 10,
+    "tooltip": true,
+    "return-type": "json"
+  },
+
+  "custom/cpu": {
+    "exec": "~/.config/waybar/scripts/cpu-usage.sh",
+    "interval": 5,
+    "return-type": "json",
+    "tooltip": true
+  },
+
+  "custom/memory": {
+    "exec": "~/.config/waybar/scripts/memory-usage.sh",
+    "interval": 10,
+    "return-type": "json",
+    "tooltip": true
+  },
+"battery": {
+  "format": "🔋 {capacity}%",
+  "low": 40,
+  "critical": 0
+}
+
+}
+
+  },
+}

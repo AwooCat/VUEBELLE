@@ -1,0 +1,102 @@
+* {
+  font-family: "JetBrainsMono Nerd Font Mono", monospace;
+  font-size: 13px;
+}
+
+/* For modules with emoji/icons */
+#custom-wifi, #battery, #cpu, #custom-volume {
+  font-family: "JetBrainsMono Nerd Font Mono";
+}
+
+
+#waybar {
+  background: rgba(26, 26, 26, 0.95);
+  color: #ffffff;
+  border-bottom: 1px solid #444;
+  padding: 0 10px;
+}
+
+#battery, #memory, #cpu, #temperature, #pulseaudio, #network, #clock, #tray, #custom-wifi {
+  margin: 0 8px;
+}
+#custom-temperature.warning {
+  color: #FFD300;
+}
+
+#custom-temperature.critical {
+  color: #FF06B5;
+}
+
+#custom-temperature {
+  color: #43fbff;
+}
+#custom-cpu.low {
+  color: #43fbff;
+}
+
+#custom-cpu.medium {
+  color: #FFD300;
+}
+
+#custom-cpu.high {
+  color: #FF06B5;
+}
+#battery {
+  color: #ff06b5; /* Pink for 70-100% */
+}
+
+#battery.low {
+  color: #FFD300; /* Yellow for 40-69% */
+}
+
+#battery.critical {
+  color: #43fbff; /* Cyan for 0-39% */
+}
+
+#custom-wifi {
+  color: #43fbff;
+}
+
+#custom-wifi.warning {
+  color: #FFD300;
+}
+
+#custom-wifi.critical {
+  color: #FF06B5;
+}
+
+
+#custom-wifi.disconnected {
+  color: #FF0000;
+}
+
+#custom-volume {
+  color: #43fbff;
+}
+#custom-memory.low {
+  color: #43fbff;
+}
+
+#custom-memory.medium {
+  color: #FFD300;
+}
+
+#custom-memory.high {
+  color: #FF06B5;
+}
+
+#clock {
+  color: #43fbff;
+}
+
+#custom-volume.low {
+  color: #43fbff;
+}
+
+#custom-volume.medium {
+  color: #FFD300;
+}
+
+#custom-volume.high {
+  color: #FF06B5;
+}
