@@ -1,63 +1,71 @@
 { config, pkgs, lib, ... }:
-
 let
   waybarConfig = ''
-  {
-    "layer": "top",
-    "position": "top",
-    "modules-left": ["cpu", "memory", "sway/workspaces", "sway/mode"],
-    "modules-center": ["clock"],
-    "modules-right": ["tray", "custom/wifi", "temperature", "custom/volume", "battery"],
+{
+  "layer": "top",
+  "position": "top",
+  "modules-left": ["custom/cpu", "custom/memory", "sway/workspaces", "sway/mode"],
+  "modules-center": ["clock"],
+  "modules-right": ["tray", "custom/wifi", "custom/temperature", "custom/volume", "battery"],
 
-    "tray": {
-      "icon-size": 16,
-      "spacing": 10
-    },
+  "tray": {
+    "icon-size": 16,
+    "spacing": 10
+  },
 
-    "custom/wifi": {
-      "exec": "~/.config/waybar/scripts/wifi-connect.sh",
-      "format": "{}",
-      "interval": 10,
-      "on-click": "~/.config/waybar/scripts/wifi-connect.sh"
-    },
+  "clock": {
+    "format": "{:%H:%M}"
+  },
 
-    "custom/volume": {
-      "exec": "~/.config/waybar/scripts/volume.sh",
-      "interval": 3,
-      "return-type": "json",
-      "on-scroll-up": "pamixer -i 5",
-      "on-scroll-down": "pamixer -d 5",
-      "on-click": "pamixer -t",
-      "tooltip": true
-    },
+  "custom/wifi": {
+    "exec": "~/.config/waybar/scripts/geko-wifi.sh",
+    "interval": 10,
+    "format": "{}",
+    "on-click": "~/.config/waybar/scripts/wifi-connect.sh",
+    "return-type": "json",
+    "tooltip": true
+  },
 
-    "temperature": {
-      "exec": "/home/ryu/.config/waybar/check_temperature.sh",
-      "interval": 10,
-      "tooltip": true,
-      "format": " {}°C"
-    },
+  "custom/volume": {
+    "exec": "~/.config/waybar/scripts/volume.sh",
+    "interval": 3,
+    "return-type": "json",
+    "on-scroll-up": "pamixer -i 5",
+    "on-scroll-down": "pamixer -d 5",
+    "on-click": "pamixer -t",
+    "tooltip": true
+  },
 
-    "cpu": {
-      "format": " {usage}%",
-      "tooltip": true
-    },
+  "custom/temperature": {
+    "exec": "~/.config/waybar/scripts/ryzen-geko.sh",
+    "interval": 10,
+    "tooltip": true,
+    "return-type": "json"
+  },
 
-    "memory": {
-      "format": "󰍛 {used:0.1f}G / {total:0.1f}G",
-      "tooltip": true
-    },
+  "custom/cpu": {
+    "exec": "~/.config/waybar/scripts/cpu-usage.sh",
+    "interval": 5,
+    "return-type": "json",
+    "tooltip": true
+  },
 
-    "battery": {
-      "format": "🔋 {capacity}%",
-      "format-charging": "⚡ {capacity}%",
-      "tooltip": true
-    },
+  "custom/memory": {
+    "exec": "~/.config/waybar/scripts/memory-usage.sh",
+    "interval": 10,
+    "return-type": "json",
+    "tooltip": true
+  },
+"battery": {
+  "format": "🔋 {capacity}%",
+  "low": 40,
+  "critical": 0
+}
 
-    "clock": {
-      "format": "{:%H:%M}"
-    }
-  }
+}
+
+  },
+}
   '';
 in
 {
@@ -71,7 +79,7 @@ in
     alacritty waybar swaylock git vim zsh
     jetbrains-mono nerd-fonts.jetbrains-mono
     papirus-icon-theme catppuccin-gtk hyprpaper
-    networkmanagerapplet wofi pulseaudio grim slurp gimp pamixer
+     wofi pulseaudio grim slurp gimp pamixer 
   ];
 
   home.sessionVariables = {
@@ -93,9 +101,15 @@ in
   # Waybar style.css (closed properly)
   home.file.".config/waybar/style.css".text = ''
 * {
-  font-family: "JetBrainsMono Nerd Font Mono";
+  font-family: "JetBrainsMono Nerd Font Mono", monospace;
   font-size: 13px;
 }
+
+/* For modules with emoji/icons */
+#custom-wifi, #battery, #cpu, #custom-volume {
+  font-family: "JetBrainsMono Nerd Font Mono";
+}
+
 
 #waybar {
   background: rgba(26, 26, 26, 0.95);
@@ -107,22 +121,52 @@ in
 #battery, #memory, #cpu, #temperature, #pulseaudio, #network, #clock, #tray, #custom-wifi {
   margin: 0 8px;
 }
-
-#battery {
-  color: #43fbff;
-}
-
-#battery.warning {
+#custom-temperature.warning {
   color: #FFD300;
 }
 
-#battery.critical {
+#custom-temperature.critical {
   color: #FF06B5;
+}
+
+#custom-temperature {
+  color: #43fbff;
+}
+#custom-cpu.low {
+  color: #43fbff;
+}
+
+#custom-cpu.medium {
+  color: #FFD300;
+}
+
+#custom-cpu.high {
+  color: #FF06B5;
+}
+#battery {
+  color: #ff06b5; /* Pink for 70-100% */
+}
+
+#battery.low {
+  color: #FFD300; /* Yellow for 40-69% */
+}
+
+#battery.critical {
+  color: #43fbff; /* Cyan for 0-39% */
 }
 
 #custom-wifi {
   color: #43fbff;
 }
+
+#custom-wifi.warning {
+  color: #FFD300;
+}
+
+#custom-wifi.critical {
+  color: #FF06B5;
+}
+
 
 #custom-wifi.disconnected {
   color: #FF0000;
@@ -130,6 +174,17 @@ in
 
 #custom-volume {
   color: #43fbff;
+}
+#custom-memory.low {
+  color: #43fbff;
+}
+
+#custom-memory.medium {
+  color: #FFD300;
+}
+
+#custom-memory.high {
+  color: #FF06B5;
 }
 
 #clock {
@@ -150,13 +205,9 @@ in
 '';
 
   # Waybar scripts (make sure executable and source paths are correct)
+  # Waybar scripts
   home.file.".config/waybar/scripts/volume.sh" = {
     source = ./scripts/volume.sh;
-    executable = true;
-  };
-
-  home.file.".config/waybar/scripts/network-status.sh" = {
-    source = ./scripts/network-status.sh;
     executable = true;
   };
 
@@ -164,6 +215,27 @@ in
     source = ./scripts/wifi-connect.sh;
     executable = true;
   };
+
+  home.file.".config/waybar/scripts/geko-wifi.sh" = {
+    source = ./scripts/geko-wifi.sh;
+    executable = true;
+  };
+
+  home.file.".config/waybar/scripts/ryzen-geko.sh" = {
+    source = ./scripts/ryzen-geko.sh;
+    executable = true;
+  };
+
+  home.file.".config/waybar/scripts/cpu-usage.sh" = {
+    source = ./scripts/cpu-usage.sh;
+    executable = true;
+  };
+
+  home.file.".config/waybar/scripts/memory-usage.sh" = {
+    source = ./scripts/memory-usage.sh;
+    executable = true;
+  };
+
 
   # Random wallpaper changer script
   home.file.".config/hypr/random-wallpaper.sh" = {
@@ -227,11 +299,7 @@ in
   };
 
   # Make sure scripts are executable
-  home.activation.makeScriptsExecutable = lib.hm.dag.entryAfter ["writeBoundary"] ''
-    chmod +x $HOME/scripts/network-*.sh
-    chmod +x $HOME/.config/waybar/scripts/*.sh
-  '';
-
+  
   # Hyprland window manager configuration
   wayland.windowManager.hyprland = {
     enable = true;
