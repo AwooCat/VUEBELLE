@@ -39,7 +39,6 @@
   },
 
  "custom/wifi": {
-  "exec": "/home/ryu/network-status.sh",
   "interval": 10,
   "tooltip": false,
   "on-click": "/home/ryu/network-connect.sh"

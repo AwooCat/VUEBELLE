@@ -10,6 +10,8 @@
   outputs = { self, nixpkgs, home-manager, ... }:
     let
       system = "x86_64-linux";
+
+      # Ideally, override these when reusing the flake for others!
       hostname = "nixos";
       username = "ryu";
 
@@ -18,9 +20,9 @@
         config.allowUnfree = true;
       };
     in {
+      # NixOS system configuration
       nixosConfigurations.${hostname} = nixpkgs.lib.nixosSystem {
-        inherit system;
-        pkgs = pkgs;
+        inherit system pkgs;
 
         modules = [
           ./configuration.nix
@@ -45,19 +47,29 @@
               fastfetch
               kdePackages.okular
               lm_sensors
+              wine
+              winetricks
+              signal-desktop
+              lolcat
             ];
 
-            # Load CPU temperature kernel modules (adjust if necessary)
             boot.kernelModules = lib.mkForce [ "k10temp" "coretemp" ];
           })
         ];
       };
-home.file."scripts/network-connect.sh".source = ./scripts/network-connect.sh;
-home.file."scripts/network-status.sh".source = ./scripts/network-status.sh;
 
+      # Home Manager user configuration
       homeConfigurations.${username} = home-manager.lib.homeManagerConfiguration {
         inherit pkgs;
-        modules = [ ./home.nix ];
+
+        modules = [
+          ./home.nix
+
+          # Move these file declarations inside the Home Manager config!
+          {
+            home.file."scripts/network-connect.sh".source = ./scripts/network-connect.sh;
+          }
+        ];
       };
     };
 }

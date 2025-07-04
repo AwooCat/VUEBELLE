@@ -1,0 +1,18 @@
+# Ignore build results and logs
+result
+hyprland-logs.txt
+
+# Ignore backup files
+*.bak
+
+# Ignore OS or editor-specific files
+*.swp
+*~
+.DS_Store
+
+# Ignore nix store and temp files (if any)
+/nix
+/tmp
+
+# Ignore the 'git' folder if not needed
+git

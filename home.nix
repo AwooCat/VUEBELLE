@@ -4,9 +4,35 @@ let
 {
   "layer": "top",
   "position": "top",
-  "modules-left": ["custom/cpu", "custom/memory", "sway/workspaces", "sway/mode"],
+
+  "modules-left": [
+    "custom/cpu",
+    "custom/space",
+    "custom/memory",
+    "custom/space",
+    "sway/workspaces",
+    "custom/space",
+    "sway/mode"
+  ],
+
   "modules-center": ["clock"],
-  "modules-right": ["tray", "custom/wifi", "custom/temperature", "custom/volume", "battery"],
+
+  "modules-right": [
+    "tray",
+    "custom/space",
+    "custom/wifi",
+    "custom/space",
+    "custom/temperature",
+    "custom/space",
+    "custom/volume",
+    "custom/space",
+    "battery"
+  ],
+
+  "custom/space": {
+    "format": "   ",
+    "tooltip": false
+  },
 
   "tray": {
     "icon-size": 16,
@@ -39,34 +65,34 @@ let
   "custom/temperature": {
     "exec": "~/.config/waybar/scripts/ryzen-geko.sh",
     "interval": 10,
-    "tooltip": true,
-    "return-type": "json"
+    "format": "🧮 {text}",
+    "return-type": "json",
+    "tooltip": true
   },
 
   "custom/cpu": {
     "exec": "~/.config/waybar/scripts/cpu-usage.sh",
     "interval": 5,
     "return-type": "json",
-    "tooltip": true
+    "tooltip": true,
+    "on-click": "alacritty -e btop"
   },
 
   "custom/memory": {
     "exec": "~/.config/waybar/scripts/memory-usage.sh",
     "interval": 10,
     "return-type": "json",
-    "tooltip": true
+    "tooltip": true,
+    "on-click": "alacritty -e htop"
   },
-"battery": {
-  "format": "🔋 {capacity}%",
-  "low": 40,
-  "critical": 0
-}
 
+  "battery": {
+    "format": "🔋 {capacity}%",
+    "low": 40,
+    "critical": 0
+  }
 }
-
-  },
-}
-  '';
+'';
 in
 {
   home.username = "ryu";
@@ -79,7 +105,7 @@ in
     alacritty waybar swaylock git vim zsh
     jetbrains-mono nerd-fonts.jetbrains-mono
     papirus-icon-theme catppuccin-gtk hyprpaper
-     wofi pulseaudio grim slurp gimp pamixer 
+     wofi pulseaudio grim slurp gimp pamixer btop htop blueman
   ];
 
   home.sessionVariables = {
@@ -99,7 +125,7 @@ in
   home.file.".config/waybar/config".text = waybarConfig;
 
   # Waybar style.css (closed properly)
-  home.file.".config/waybar/style.css".text = ''
+home.file.".config/waybar/style.css".text = ''
 * {
   font-family: "JetBrainsMono Nerd Font Mono", monospace;
   font-size: 13px;
@@ -110,17 +136,43 @@ in
   font-family: "JetBrainsMono Nerd Font Mono";
 }
 
-
 #waybar {
-  background: rgba(26, 26, 26, 0.95);
-  color: #ffffff;
-  border-bottom: 1px solid #444;
-  padding: 0 10px;
+    background-image: url("background.png");
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;
 }
 
-#battery, #memory, #cpu, #temperature, #pulseaudio, #network, #clock, #tray, #custom-wifi {
+#waybar > * {
+    /* Removed position and z-index */
+}
+
+
+
+
+
+.modules-left > *:not(:last-child),
+.modules-center > *:not(:last-child),
+.modules-right > *:not(:last-child) {
+  margin-right: 12px;
+}
+
+#battery,
+#memory,
+#cpu,
+#temperature,
+#pulseaudio,
+#network,
+#clock,
+#tray,
+#custom-wifi,
+#custom-volume,
+#custom-cpu,
+#custom-memory {
   margin: 0 8px;
 }
+
+
 #custom-temperature.warning {
   color: #FFD300;
 }
@@ -202,6 +254,15 @@ in
 #custom-volume.high {
   color: #FF06B5;
 }
+/* Bigger RAM, WiFi, CPU, Volume, Battery, Temperature symbols */
+#custom-memory,
+#custom-wifi,
+#custom-cpu,
+#custom-volume,
+#battery,
+#custom-temperature {
+  font-size: 16px;
+}
 '';
 
   # Waybar scripts (make sure executable and source paths are correct)
@@ -235,7 +296,6 @@ in
     source = ./scripts/memory-usage.sh;
     executable = true;
   };
-
 
   # Random wallpaper changer script
   home.file.".config/hypr/random-wallpaper.sh" = {
@@ -299,7 +359,7 @@ in
   };
 
   # Make sure scripts are executable
-  
+
   # Hyprland window manager configuration
   wayland.windowManager.hyprland = {
     enable = true;
@@ -314,11 +374,19 @@ in
         "$mod, S, exec, bash -c 'TMP_SCREENSHOT=/home/ryu/Pictures/screenshot-$(date +%s).png; grim -g \"$(slurp)\" \"$TMP_SCREENSHOT\" && gimp \"$TMP_SCREENSHOT\"'"
         "$mod, L, exec, librewolf"
         "$mod, M, exec, steam"
-      ];
+        "$mod, SPACE, togglefloating"
+       ];
+
+bindm = [
+  "$mod, mouse:272, movewindow"
+  "$mod, mouse:273, resizewindow"
+];
+
       exec-once = [
         "dbus-update-activation-environment --systemd WAYLAND_DISPLAY XDG_CURRENT_DESKTOP XDG_SESSION_TYPE"
         "waybar"
         "hyprpaper"
+        "blueman-applet"
       ];
       monitor = [ ",preferred,auto,1" ];
       env = [ "XCURSOR_SIZE,24" ];
@@ -327,14 +395,30 @@ in
         kb_variant = "de";
         follow_mouse = 1;
       };
+
+
       general = {
-        gaps_in = 5;
-        gaps_out = 20;
+        gaps_in     = 5;
+        gaps_out    = 20;
         border_size = 2;
-        "col.active_border" = "rgba(ff00ffaa)";
+        "col.active_border"   = "rgba(ff00ffaa)";
         "col.inactive_border" = "rgba(1a1a1aaa)";
       };
     };
+
+    # here we inject raw hyprland.conf lines that the module
+    # doesn’t know about directly
+    extraConfig = ''
+    animations {
+  enabled = yes
+  animation = windows, 1500, 0, easeOut
+  animation = windowsOut, 2000, 1000, easeInOut
+  animation = fade, 2000, 1000, easeInOut
+
+}
+
+
+    '';
   };
 
   home.enableNixpkgsReleaseCheck = false;

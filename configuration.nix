@@ -14,6 +14,9 @@
   networking.hostName = "nixos";
   networking.networkmanager.enable = true;
 
+  hardware.bluetooth.enable = true;
+  services.blueman.enable = true;
+
   time.timeZone = "Africa/Brazzaville";
 
   i18n.defaultLocale = "en_GB.UTF-8";
