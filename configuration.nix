@@ -1,57 +1,60 @@
-{ config, pkgs, ... }:
+{ config, pkgs, lib, ... }:
 
 {
-  imports = [ ./hardware-configuration.nix ];
+  imports = [
+    ./hardware-configuration.nix
+  ];
 
+  # Enable experimental nix features for flakes
   nix.settings.experimental-features = [ "nix-command" "flakes" ];
 
+  # Bootloader
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
-
-  boot.kernelPackages = pkgs.linuxPackages_6_1;
+  boot.kernelPackages = pkgs.linuxPackages_6_12;
   boot.blacklistedKernelModules = [ "nouveau" ];
 
+  # Hostname & networking
   networking.hostName = "nixos";
   networking.networkmanager.enable = true;
 
+  # Bluetooth
   hardware.bluetooth.enable = true;
   services.blueman.enable = true;
 
+  # Timezone & locale
   time.timeZone = "Africa/Brazzaville";
-
   i18n.defaultLocale = "en_GB.UTF-8";
-
   console.keyMap = "sg";
 
-  services.xserver.enable = false;
-
+  # X server & display manager
+  services.xserver.enable = true;
   services.xserver.videoDrivers = [ "nvidia" ];
+  services.displayManager.sddm.enable = true;
+  services.displayManager.defaultSession = "hyprland-uwsm"; # matches Hyprland session
+  programs.hyprland.enable = true;
 
-  services.displayManager.sddm = {
-    enable = true;
-    wayland.enable = true;
-  };
-
-  services.desktopManager.plasma6.enable = false;
-
+  # Audio
   services.pipewire = {
     enable = true;
     alsa.enable = true;
     pulse.enable = true;
   };
 
+  # Users
   users.users.ryu = {
     isNormalUser = true;
-    extraGroups = [ "networkmanager" "wheel" ];
+    extraGroups = [ "networkmanager" "wheel" "video" ];
     shell = pkgs.zsh;
   };
 
+  # Enable ZSH properly
   programs.zsh.enable = true;
-  programs.steam.enable = true;
 
+  # NVIDIA setup
   hardware.nvidia = {
-    package = pkgs.linuxPackages_6_1.nvidiaPackages.stable;
-    modesetting.enable = true;
+  package = pkgs.linuxPackages_6_12.nvidiaPackages.stable;
+  modesetting.enable = true;
     nvidiaSettings = true;
     nvidiaPersistenced = true;
     open = false;
@@ -68,5 +71,21 @@
     LIBVA_DRIVER_NAME = "nvidia";
   };
 
+  # Swapfile (12GB)
+  swapDevices = [
+    { device = "/swapfile"; size = 12288; }
+  ];
+# ZRAM swap (~2GB)
+zramSwap = {
+  enable = true;
+  memoryPercent = 15; # ~2GB on your 13GB RAM
+  algorithm = "zstd"; # fast compression
+};
+
+
+  # Optional programs
+  programs.steam.enable = true;
+
+  # System version
   system.stateVersion = "25.05";
 }

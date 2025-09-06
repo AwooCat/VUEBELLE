@@ -105,7 +105,7 @@ in
     alacritty waybar swaylock git vim zsh
     jetbrains-mono nerd-fonts.jetbrains-mono
     papirus-icon-theme catppuccin-gtk hyprpaper
-     wofi pulseaudio grim slurp gimp pamixer btop htop blueman
+     wofi pulseaudio grim slurp gimp pamixer btop htop blueman glpaper
   ];
 
   home.sessionVariables = {
@@ -328,6 +328,28 @@ home.file.".config/waybar/style.css".text = ''
       WantedBy = [ "default.target" ];
     };
   };
+  
+  # GLPaper shader wallpaper service
+systemd.user.services.glpaper = {
+  Unit = {
+    Description = "GLPaper shader wallpaper";
+    After = [ "network.target" ];
+  };
+  Service = {
+    Environment = "WAYLAND_DISPLAY=wayland-0";
+    ExecStart = "${pkgs.glpaper}/bin/glpaper --shader /home/ryu/Shaders/working_blackhole.frag --output eDP-1";
+    Restart = "always";
+    RestartSec = 5;
+  };
+  Install = {
+    WantedBy = [ "default.target" ];
+  };
+};
+
+  Install = {
+    WantedBy = [ "default.target" ];
+  };
+};
 
   # Wallpaper changer service
   systemd.user.services.hyprpaper-random = {
